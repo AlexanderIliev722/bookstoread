@@ -23,14 +23,14 @@ repositories {
 
 dependencies {
     def junitVersion = '5.0.0-RC2'
-    testCompile 'org.junit.jupiter:junit-jupiter-api:' + junitVersion
-    testCompile 'org.junit.jupiter:junit-jupiter-params:' + junitVersion
-    testRuntime 'org.junit.jupiter:junit-jupiter-engine:' + junitVersion
-    testCompile 'org.assertj:assertj-core:3.5.2'
-    testCompile 'org.mockito:mockito-core:2.+'
-    testCompile 'org.junit.platform:junit-platform-runner:1.0.0-RC2'
-    testCompile 'org.junit.jupiter:junit-jupiter-migrationsupport:' + junitVersion
-    testCompile 'junit:junit:4.12'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:' + junitVersion
+    testImplementation 'org.junit.jupiter:junit-jupiter-params:' + junitVersion
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:' + junitVersion
+    testImplementation 'org.assertj:assertj-core:3.5.2'
+    testImplementation 'org.mockito:mockito-core:2.+'
+    testImplementation 'org.junit.platform:junit-platform-runner:1.0.0-RC2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-migrationsupport:' + junitVersion
+    testImplementation 'junit:junit:4.12'
 }
 
 junitPlatform {
@@ -52,8 +52,8 @@ afterEvaluate {
         sourceDirectories = files(sourceSets.main.allSource.srcDirs)
         classDirectories = files(sourceSets.main.output)
         reports {
-            xml.enabled = true
-            html.enabled = true
+            xml.required = true
+            html.required = true
         }
     }
 
