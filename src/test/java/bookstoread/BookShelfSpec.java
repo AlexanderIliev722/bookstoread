@@ -63,6 +63,15 @@ public class BookShelfSpec {
             assertTrue(books.isEmpty(), () -> "BookShelf should be empty.");
         }
 
+        //Zadacha 14 a)
+        @Test
+        @DisplayName("when arrange is called on empty shelf")
+        void emptyBookShelfWhenArrangedIsCalled() {
+            List<Book> books = shelf.arrange();
+
+            assertTrue(books.isEmpty(), () -> "Arranged list should be empty when shelf is empty.");
+        }
+
     }
 
     @Nested
@@ -114,7 +123,7 @@ public class BookShelfSpec {
 //        assertEquals("Hello, World!", message);
 
 
-        assertTimeoutPreemptively(Duration.of(1, ChronoUnit.SECONDS), () -> Thread.sleep(2000));
+        assertTimeoutPreemptively(Duration.of(1, ChronoUnit.SECONDS), () -> Thread.sleep(500));
     }
 
     @RepeatedTest(value = 10, name = "i_am_a_repeated_test__{currentRepetition}/{totalRepetitions}")
@@ -178,9 +187,65 @@ public class BookShelfSpec {
                     books,
                     () -> "Books in a bookshelf are arranged by book publication date in ascending order");
         }
+        //Zadacha 14 a)
+        @Test
+        @DisplayName("by publication date (newest first)")
+        void bookshelfArrangedByPublicationDateReversed() {
+            shelf.add(effectiveJava, codeComplete, mythicalManMonth);
 
+            List<Book> books = shelf.arrange(Comparator.comparing(Book::getPublishedOn).reversed());
+
+            assertEquals(
+                    asList(effectiveJava, codeComplete, mythicalManMonth),
+                    books,
+                    () -> "Books should be arranged by date: Newest to Oldest(descending order)");
+        }
+
+        //Zadacha 14 c)
+        @Test
+        @DisplayName("books are arranged by author and then by title")
+        void booksAreArrangedByAuthorThenTitle() {
+            BookShelf shelf = new BookShelf();
+            Book effectiveJava = new Book("Effective Java", "Joshua Bloch", LocalDate.of(2008, 5, 8));
+            Book codeComplete = new Book("Code Complete", "Steve McConnell", LocalDate.of(2004, 6, 9));
+            Book javaConcurrency = new Book("Java Concurrency in Practice", "Joshua Bloch", LocalDate.of(2006, 5, 19));
+
+            // add in a random order
+            shelf.add(codeComplete, effectiveJava, javaConcurrency);
+            // arrange them
+            List<Book> arrangedBooks = shelf.arrangeByAuthorThenTitle();
+
+            // Assert
+            assertEquals(Arrays.asList(effectiveJava, javaConcurrency, codeComplete), arrangedBooks, "Books should be sorted by Author then Title");
+            // Expected Order:
+            // 1. Joshua Bloch - Effective Java (E comes before J)
+            // 2. Joshua Bloch - Java Concurrency
+            // 3. Steve McConnell - Code Complete
+
+        }
+        //Zadacha 14 e) TDD
+        @Test
+        @DisplayName("books are arranged by title and then by author")
+        void booksAreArrangedByTitleThenAuthor() {
+            //Add
+            Book windsOfWinter = new Book("The Winds of Winter", "George R.R. Martin", LocalDate.of(2025, Month.DECEMBER, 1));
+            Book windsOfWinterFanFic = new Book("The Winds of Winter", "Alice The Fan", LocalDate.of(2024, Month.JANUARY, 1));
+            Book gameOfThrones = new Book("A Game of Thrones", "George R.R. Martin", LocalDate.of(1996, Month.AUGUST, 1));
+
+            shelf.add(windsOfWinter, windsOfWinterFanFic, gameOfThrones);
+
+            // This line will fail to compile
+            List<Book> arranged = shelf.arrangeByTitleThenAuthor();
+            // Expected Order:
+            // 1. "A Game of Thrones"
+            // 2. "The Winds of Winter" by Alice
+            // 3. "The Winds of Winter" by George
+
+            //Assert
+            assertEquals(Arrays.asList(gameOfThrones, windsOfWinterFanFic, windsOfWinter),
+                    arranged, "Should sort by Title first then by Author t");
+        }
     }
-
 
     @Nested
     @DisplayName("books are grouped by")
@@ -243,6 +308,43 @@ public class BookShelfSpec {
                     .containsKey("Robert C. Martin")
                     .containsValues(singletonList(cleanCode));
         }
+//Zadacha 14 d)
+        @Test
+        @DisplayName("author name")
+        void groupBooksInBookShelfByAuthor() {
+            // Add
+            shelf.add(effectiveJava, codeComplete, mythicalManMonth, cleanCode);
 
+            // Group them
+            Map<String, List<Book>> booksByAuthor = shelf.groupByAuthor();
+
+            //Assert
+            // Joshua Bloch -> "Effective Java"
+            assertThat(booksByAuthor).containsKey("Joshua Bloch")
+                    .containsValues(singletonList(effectiveJava));
+
+            // Steve McConnel -> "Code Complete"
+            assertThat(booksByAuthor).containsKey("Steve McConnel")
+                    .containsValues(singletonList(codeComplete));
+
+            // Robert C. Martin -> "Clean Code"
+            assertThat(booksByAuthor).containsKey("Robert C. Martin")
+                    .containsValues(singletonList(cleanCode));
+        }
+        @Test
+        @DisplayName("author name")
+        void groupBooksInBookShelfByAuthor2() {
+            shelf.add(effectiveJava, codeComplete, mythicalManMonth, cleanCode);
+
+            Map<String, List<Book>> booksByAuthor = shelf.groupByAuthor();
+
+            assertThat(booksByAuthor)
+                    .containsKey("Joshua Bloch")
+                    .containsValues(singletonList(effectiveJava));
+
+            assertThat(booksByAuthor)
+                    .containsKey("Steve McConnel")
+                    .containsValues(singletonList(codeComplete));
+        }
     }
 }

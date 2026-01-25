@@ -18,7 +18,7 @@ class ParameterResolverSpec {
     }
 
     @Test
-    void nonRepeated(RepetitionInfo info) {
+    void nonRepeated() {
         assertTrue(true);
     }
 

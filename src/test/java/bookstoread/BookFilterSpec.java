@@ -89,6 +89,35 @@ class BookFilterSpec {
             assertTrue(filter.apply(codeComplete));
         }
     }
+    //Zadacha 14 b)
+    @Nested
+    @DisplayName("book by author")
+    class BookByAuthorFilterSpec implements FilterBoundaryTests {
+        BookFilter filter;
+
+        @BeforeEach
+        void init() {
+            // We set up the filter to look for "Robert C. Martin"
+            filter = BookAuthorFilter.By("Robert C. Martin");
+        }
+
+        @Override
+        public BookFilter get() {
+            return filter;
+        }
+
+        @Test
+        @DisplayName("should give matching book")
+        void validateBookByAuthor() {
+            // Should be True because CleanCode is by Robert C. Martin
+            assertTrue(filter.apply(cleanCode), "Should match the correct author");
+
+            // Should be False because CodeComplete is by Steve McConnel
+            assertFalse(filter.apply(codeComplete), "Should not match a different author");
+        }
+    }
+
+
 
     /**
      * can we really say that we have called all the filters here ?
@@ -153,7 +182,7 @@ class BookFilterSpec {
             return returnValue;
         }
     }
-
+/*
     @TestFactory
     Collection<DynamicTest> dynamicTestsFromCollection() {
         BookFilter filter= null;
@@ -168,6 +197,27 @@ class BookFilterSpec {
                 })
         );
 
+    }
+    */
+
+    @TestFactory
+    Collection<DynamicTest> dynamicTestsFromCollection() {
+        return Arrays.asList(
+                dynamicTest("1st dynamic test", () -> {
+                    // Fix: Create the specific filter for this test logic
+                    BookFilter filter = BookPublishedYearFilter.After(2007);
+
+                    assertTrue(filter.apply(cleanCode));
+                    assertFalse(filter.apply(codeComplete));
+                }),
+                dynamicTest("2nd dynamic test", () -> {
+                    // Fix: Create the OTHER filter for the opposite logic
+                    BookFilter filter = BookPublishedYearFilter.Before(2007);
+
+                    assertFalse(filter.apply(cleanCode));
+                    assertTrue(filter.apply(codeComplete));
+                })
+        );
     }
 
 }

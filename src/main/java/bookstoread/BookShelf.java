@@ -48,10 +48,26 @@ public class BookShelf {
         return groupBy(book -> Year.of(book.getPublishedOn().getYear()));
     }
 
+
+    //Zadacha 14 d)
+    public Map<String, List<Book>> groupByAuthor() {
+        return groupBy(Book::getAuthor);
+    }
+
     public <K> Map<K, List<Book>> groupBy(Function<Book, K> fx) {
         return books
                 .stream()
                 .collect(groupingBy(fx));
+    }
+    //Zadacha 14 c)
+    public List<Book> arrangeByAuthorThenTitle() {
+       // return books.stream().sorted(Comparator.comparing(Book::getAuthor).thenComparing(Book::getTitle)).collect(toList());
+        return arrange(Comparator.comparing(Book::getAuthor).thenComparing(Book::getTitle));
+}
+//Zadacha 14 e) TDD Adding the method after the Test failed
+    public List<Book> arrangeByTitleThenAuthor() {
+        return arrange(Comparator.comparing(Book::getTitle).thenComparing(Book::getAuthor)
+        );
     }
 
     public Progress progress() {
