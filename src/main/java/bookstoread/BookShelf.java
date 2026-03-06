@@ -9,6 +9,7 @@ import static java.util.stream.Collectors.toList;
 
 public class BookShelf {
 
+
     private final List<Book> books = new ArrayList<>();
     private final int capacity;
 
@@ -95,4 +96,5 @@ public class BookShelf {
                 .filter(b -> filter.apply(b))
                 .collect(toList());
     }
+
 }

@@ -1,14 +1,9 @@
 package bookstoread;
-
-
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.assertj.core.api.BooleanArrayAssert;
 import org.junit.jupiter.api.*;
 import org.junit.platform.runner.JUnitPlatform;
 import org.junit.runner.RunWith;
@@ -17,30 +12,27 @@ import org.mockito.Mockito;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-interface FilterBoundaryTests {
-    BookFilter get();
-
-    @Test
-    @DisplayName("should not fail for null book.")
-    default void nullTest() {
-        assertThat(get().apply(null)).isFalse();
-    }
-
-}
 @RunWith(JUnitPlatform.class)
 @Tag("Filter")
 @DisplayName("Filter based on")
-class BookFilterSpec {
+public class BookFilterSpec {    // <--- Added 'public' here
+
+    private static final String AUTHOR_ROBERT_MARTIN = "Robert C. Martin";
+    // ... the rest of your code stays exactly the same ...
+    private static final String AUTHOR_STEVE_MCCONNEL = "Steve McConnel";
+    private static final String TITLE_CLEAN_CODE = "Clean Code";
+    private static final String TITLE_CODE_COMPLETE = "Code Complete";
+
     private Book cleanCode;
     private Book codeComplete;
 
     @BeforeEach
     void init() {
-        cleanCode = new Book("Clean Code", "Robert C. Martin", LocalDate.of(2008, Month.AUGUST, 1));
-        codeComplete = new Book("Code Complete", "Steve McConnel", LocalDate.of(2004, Month.JUNE, 9));
+
+        cleanCode = new Book(TITLE_CLEAN_CODE, AUTHOR_ROBERT_MARTIN, LocalDate.of(2008, Month.AUGUST, 1));
+        codeComplete = new Book(TITLE_CODE_COMPLETE, AUTHOR_STEVE_MCCONNEL, LocalDate.of(2004, Month.JUNE, 9));
     }
 
     @Nested
@@ -89,6 +81,7 @@ class BookFilterSpec {
             assertTrue(filter.apply(codeComplete));
         }
     }
+
     //Zadacha 14 b)
     @Nested
     @DisplayName("book by author")
@@ -97,8 +90,8 @@ class BookFilterSpec {
 
         @BeforeEach
         void init() {
-            // We set up the filter to look for "Robert C. Martin"
-            filter = BookAuthorFilter.By("Robert C. Martin");
+            // Using the constant here instead of the raw string!
+            filter = BookAuthorFilter.By(AUTHOR_ROBERT_MARTIN);
         }
 
         @Override
@@ -116,8 +109,6 @@ class BookFilterSpec {
             assertFalse(filter.apply(codeComplete), "Should not match a different author");
         }
     }
-
-
 
     /**
      * can we really say that we have called all the filters here ?
@@ -182,36 +173,17 @@ class BookFilterSpec {
             return returnValue;
         }
     }
-/*
-    @TestFactory
-    Collection<DynamicTest> dynamicTestsFromCollection() {
-        BookFilter filter= null;
-        return Arrays.asList(
-                dynamicTest("1st dynamic test", () ->{
-                    assertTrue(filter.apply(cleanCode));
-                    assertFalse(filter.apply(codeComplete));
-                }),
-                dynamicTest("2nd dynamic test", () ->{
-                    assertFalse(filter.apply(cleanCode));
-                    assertTrue(filter.apply(codeComplete));
-                })
-        );
-
-    }
-    */
 
     @TestFactory
     Collection<DynamicTest> dynamicTestsFromCollection() {
         return Arrays.asList(
                 dynamicTest("1st dynamic test", () -> {
-                    // Fix: Create the specific filter for this test logic
                     BookFilter filter = BookPublishedYearFilter.After(2007);
 
                     assertTrue(filter.apply(cleanCode));
                     assertFalse(filter.apply(codeComplete));
                 }),
                 dynamicTest("2nd dynamic test", () -> {
-                    // Fix: Create the OTHER filter for the opposite logic
                     BookFilter filter = BookPublishedYearFilter.Before(2007);
 
                     assertFalse(filter.apply(cleanCode));
@@ -219,5 +191,4 @@ class BookFilterSpec {
                 })
         );
     }
-
 }

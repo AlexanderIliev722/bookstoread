@@ -23,6 +23,14 @@ import static org.junit.jupiter.api.Assertions.*;
 @DisplayName("A bookshelf")
 public class BookShelfSpec {
 
+    private static final String AUTHOR_JOSHUA_BLOCH = "Joshua Bloch";
+    private static final String AUTHOR_STEVE_MCCONNEL = "Steve McConnel";
+    private static final String AUTHOR_STEVE_MCCONNELL_ALT = "Steve McConnell"; // Handling the typo in Zadacha 14 c
+    private static final String AUTHOR_FREDERICK_BROOKS = "Frederick Phillips Brooks";
+    private static final String AUTHOR_ROBERT_MARTIN = "Robert C. Martin";
+    private static final String AUTHOR_GEORGE_MARTIN = "George R.R. Martin";
+    private static final String AUTHOR_ALICE = "Alice The Fan";
+
     private BookShelf shelf;
     private Book effectiveJava;
     private Book codeComplete;
@@ -32,13 +40,12 @@ public class BookShelfSpec {
     @BeforeEach
     void init() {
         shelf = new BookShelf();
-        effectiveJava = new Book("Effective Java", "Joshua Bloch", LocalDate.of(2008, Month.MAY, 8));
-        codeComplete = new Book("Code Complete", "Steve McConnel", LocalDate.of(2004, Month.JUNE, 9));
-        mythicalManMonth = new Book("The Mythical Man-Month", "Frederick Phillips Brooks", LocalDate.of(1975, Month.JANUARY, 1));
-        cleanCode = new Book("Clean Code", "Robert C. Martin", LocalDate.of(2008, Month.AUGUST, 1));
+        // Using constants here
+        effectiveJava = new Book("Effective Java", AUTHOR_JOSHUA_BLOCH, LocalDate.of(2008, Month.MAY, 8));
+        codeComplete = new Book("Code Complete", AUTHOR_STEVE_MCCONNEL, LocalDate.of(2004, Month.JUNE, 9));
+        mythicalManMonth = new Book("The Mythical Man-Month", AUTHOR_FREDERICK_BROOKS, LocalDate.of(1975, Month.JANUARY, 1));
+        cleanCode = new Book("Clean Code", AUTHOR_ROBERT_MARTIN, LocalDate.of(2008, Month.AUGUST, 1));
     }
-
-    //*************** BTR-1 *********************//
 
     @Nested
     @DisplayName("is empty")
@@ -51,10 +58,6 @@ public class BookShelfSpec {
             assertTrue(books.isEmpty(), () -> "BookShelf should be empty");
         }
 
-        /*
-            Book Notes:
-            1. Time for clean up. Adding BeforeEach method
-         */
         @Test
         @DisplayName("when add is called without books")
         void emptyBookShelfWhenAddIsCalledWithoutBooks() {
@@ -68,23 +71,14 @@ public class BookShelfSpec {
         @DisplayName("when arrange is called on empty shelf")
         void emptyBookShelfWhenArrangedIsCalled() {
             List<Book> books = shelf.arrange();
-
             assertTrue(books.isEmpty(), () -> "Arranged list should be empty when shelf is empty.");
         }
-
     }
 
     @Nested
     @DisplayName("after adding books")
     class BooksAreAdded {
 
-        /*
-        Book Notes:
-        1. As you write test you will become clear if you want this kind of API or not
-        Here rather than just supporting String in add we can use var args as well. That will allow us to
-        add multiple books in one go.
-        2. You can use non-public methods as test names
-         */
         @Test
         @DisplayName("contains two books")
         void bookshelfContainsTwoBooksWhenTwoBooksAdded() {
@@ -105,7 +99,6 @@ public class BookShelfSpec {
                 assertTrue(e instanceof UnsupportedOperationException, () -> "BookShelf should throw UnsupportedOperationException");
             }
         }
-
     }
 
     @Test
@@ -118,11 +111,6 @@ public class BookShelfSpec {
 
     @Test
     void test_should_complete_in_one_second() {
-//        assertTimeout(Duration.of(1, ChronoUnit.SECONDS), () -> Thread.sleep(2000));
-//        String message = assertTimeout(Duration.of(1, ChronoUnit.SECONDS), () -> "Hello, World!");
-//        assertEquals("Hello, World!", message);
-
-
         assertTimeoutPreemptively(Duration.of(1, ChronoUnit.SECONDS), () -> Thread.sleep(500));
     }
 
@@ -130,8 +118,6 @@ public class BookShelfSpec {
     void i_am_a_repeated_test() {
         assertTrue(true);
     }
-
-    //*************** BTR-2 *********************//
 
     @Nested
     @DisplayName("is arranged")
@@ -145,15 +131,6 @@ public class BookShelfSpec {
             assertEquals(asList(codeComplete, effectiveJava, mythicalManMonth), books, () -> "Books in a bookshelf should be arranged lexicographically by book title");
         }
 
-
-        /*
-        Book note:
-        We started with book as just a String primitive. This makes it easy to start off.
-        Now, we realized book will have other properties so we will need to think about Book as a model class.
-        Before we move ahead, let's create Book model with only single property
-        After refactoring you will get java.lang.ClassCastException: bookstoread.Book cannot be cast to java.lang.Comparable.
-        First we will have to implement Comparable interface and then we will have to add equals and hashcode method
-         */
         @Test
         @DisplayName("by user provided criteria (by book title lexicographically descending)")
         void bookshelfArrangedByUserProvidedCriteria() {
@@ -165,18 +142,6 @@ public class BookShelfSpec {
                     () -> "Books in a bookshelf are arranged in descending order of book title");
         }
 
-        /*
-        Book note:
-        One thing that reader should note here is that business logic `Comparator.<Book>naturalOrder().reversed()` in the above example is in the test.
-         Our API supports client to provide their own criteria. If we in future we discovered that this should be in bookshelf then we can just move it there.
-         You discover production code in tests.
-         */
-
-        /*
-        Book note:
-        We will extend the Book model to include few more fields.
-
-         */
         @Test
         @DisplayName("by book publication date in ascending order")
         void bookshelfArrangedByAnotherUserProvidedCriteria() {
@@ -187,14 +152,13 @@ public class BookShelfSpec {
                     books,
                     () -> "Books in a bookshelf are arranged by book publication date in ascending order");
         }
+
         //Zadacha 14 a)
         @Test
         @DisplayName("by publication date (newest first)")
         void bookshelfArrangedByPublicationDateReversed() {
             shelf.add(effectiveJava, codeComplete, mythicalManMonth);
-
             List<Book> books = shelf.arrange(Comparator.comparing(Book::getPublishedOn).reversed());
-
             assertEquals(
                     asList(effectiveJava, codeComplete, mythicalManMonth),
                     books,
@@ -206,42 +170,29 @@ public class BookShelfSpec {
         @DisplayName("books are arranged by author and then by title")
         void booksAreArrangedByAuthorThenTitle() {
             BookShelf shelf = new BookShelf();
-            Book effectiveJava = new Book("Effective Java", "Joshua Bloch", LocalDate.of(2008, 5, 8));
-            Book codeComplete = new Book("Code Complete", "Steve McConnell", LocalDate.of(2004, 6, 9));
-            Book javaConcurrency = new Book("Java Concurrency in Practice", "Joshua Bloch", LocalDate.of(2006, 5, 19));
+            // Using constants here
+            Book effectiveJava = new Book("Effective Java", AUTHOR_JOSHUA_BLOCH, LocalDate.of(2008, 5, 8));
+            Book codeComplete = new Book("Code Complete", AUTHOR_STEVE_MCCONNELL_ALT, LocalDate.of(2004, 6, 9));
+            Book javaConcurrency = new Book("Java Concurrency in Practice", AUTHOR_JOSHUA_BLOCH, LocalDate.of(2006, 5, 19));
 
-            // add in a random order
             shelf.add(codeComplete, effectiveJava, javaConcurrency);
-            // arrange them
             List<Book> arrangedBooks = shelf.arrangeByAuthorThenTitle();
 
-            // Assert
             assertEquals(Arrays.asList(effectiveJava, javaConcurrency, codeComplete), arrangedBooks, "Books should be sorted by Author then Title");
-            // Expected Order:
-            // 1. Joshua Bloch - Effective Java (E comes before J)
-            // 2. Joshua Bloch - Java Concurrency
-            // 3. Steve McConnell - Code Complete
-
         }
+
         //Zadacha 14 e) TDD
         @Test
         @DisplayName("books are arranged by title and then by author")
         void booksAreArrangedByTitleThenAuthor() {
-            //Add
-            Book windsOfWinter = new Book("The Winds of Winter", "George R.R. Martin", LocalDate.of(2025, Month.DECEMBER, 1));
-            Book windsOfWinterFanFic = new Book("The Winds of Winter", "Alice The Fan", LocalDate.of(2024, Month.JANUARY, 1));
-            Book gameOfThrones = new Book("A Game of Thrones", "George R.R. Martin", LocalDate.of(1996, Month.AUGUST, 1));
+            // Using constants here
+            Book windsOfWinter = new Book("The Winds of Winter", AUTHOR_GEORGE_MARTIN, LocalDate.of(2025, Month.DECEMBER, 1));
+            Book windsOfWinterFanFic = new Book("The Winds of Winter", AUTHOR_ALICE, LocalDate.of(2024, Month.JANUARY, 1));
+            Book gameOfThrones = new Book("A Game of Thrones", AUTHOR_GEORGE_MARTIN, LocalDate.of(1996, Month.AUGUST, 1));
 
             shelf.add(windsOfWinter, windsOfWinterFanFic, gameOfThrones);
-
-            // This line will fail to compile
             List<Book> arranged = shelf.arrangeByTitleThenAuthor();
-            // Expected Order:
-            // 1. "A Game of Thrones"
-            // 2. "The Winds of Winter" by Alice
-            // 3. "The Winds of Winter" by George
 
-            //Assert
             assertEquals(Arrays.asList(gameOfThrones, windsOfWinterFanFic, windsOfWinter),
                     arranged, "Should sort by Title first then by Author t");
         }
@@ -250,18 +201,6 @@ public class BookShelfSpec {
     @Nested
     @DisplayName("books are grouped by")
     class GroupBy {
-
-        /*
-    Book note:
-    Exercise: Ask readers to arrange book by author name
-     */
-
-    /*
-    Book note:
-    One common requirement that comes is to group books within bookshelf by criteria.
-    For example, group books by their author or publication year.
-    Here we will introduce AssertJ assertions
-     */
 
         @Test
         @DisplayName("publication year")
@@ -282,10 +221,6 @@ public class BookShelfSpec {
                     .containsValues(singletonList(mythicalManMonth));
         }
 
-        /*
-        Book note:
-        If you think more we can make our function generic by extracting out grouping function
-         */
         @Test
         @DisplayName("user provided criteria(group by author name)")
         void groupBooksInBookShelfByUserProvidedCriteria() {
@@ -293,58 +228,53 @@ public class BookShelfSpec {
             Map<String, List<Book>> booksByAuthor = shelf.groupBy(Book::getAuthor);
 
             assertThat(booksByAuthor)
-                    .containsKey("Joshua Bloch")
+                    .containsKey(AUTHOR_JOSHUA_BLOCH)
                     .containsValues(singletonList(effectiveJava));
 
             assertThat(booksByAuthor)
-                    .containsKey("Steve McConnel")
+                    .containsKey(AUTHOR_STEVE_MCCONNEL)
                     .containsValues(singletonList(codeComplete));
 
             assertThat(booksByAuthor)
-                    .containsKey("Frederick Phillips Brooks")
+                    .containsKey(AUTHOR_FREDERICK_BROOKS)
                     .containsValues(singletonList(mythicalManMonth));
 
             assertThat(booksByAuthor)
-                    .containsKey("Robert C. Martin")
+                    .containsKey(AUTHOR_ROBERT_MARTIN)
                     .containsValues(singletonList(cleanCode));
         }
-//Zadacha 14 d)
+
+        //Zadacha 14 d)
         @Test
         @DisplayName("author name")
         void groupBooksInBookShelfByAuthor() {
-            // Add
             shelf.add(effectiveJava, codeComplete, mythicalManMonth, cleanCode);
-
-            // Group them
             Map<String, List<Book>> booksByAuthor = shelf.groupByAuthor();
 
-            //Assert
-            // Joshua Bloch -> "Effective Java"
-            assertThat(booksByAuthor).containsKey("Joshua Bloch")
+            assertThat(booksByAuthor).containsKey(AUTHOR_JOSHUA_BLOCH)
                     .containsValues(singletonList(effectiveJava));
 
-            // Steve McConnel -> "Code Complete"
-            assertThat(booksByAuthor).containsKey("Steve McConnel")
+            assertThat(booksByAuthor).containsKey(AUTHOR_STEVE_MCCONNEL)
                     .containsValues(singletonList(codeComplete));
 
-            // Robert C. Martin -> "Clean Code"
-            assertThat(booksByAuthor).containsKey("Robert C. Martin")
+            assertThat(booksByAuthor).containsKey(AUTHOR_ROBERT_MARTIN)
                     .containsValues(singletonList(cleanCode));
         }
         @Test
-        @DisplayName("author name")
-        void groupBooksInBookShelfByAuthor2() {
-            shelf.add(effectiveJava, codeComplete, mythicalManMonth, cleanCode);
+        @DisplayName("author name with multiple books by the same author")
+        void groupBooksInBookShelfByAuthor_MultipleBooks() {
+            Book javaConcurrency = new Book("Java Concurrency in Practice", AUTHOR_JOSHUA_BLOCH, LocalDate.of(2006, Month.MAY, 19));
+            shelf.add(effectiveJava, javaConcurrency, codeComplete);
 
             Map<String, List<Book>> booksByAuthor = shelf.groupByAuthor();
 
             assertThat(booksByAuthor)
-                    .containsKey("Joshua Bloch")
-                    .containsValues(singletonList(effectiveJava));
+                    .containsKey(AUTHOR_JOSHUA_BLOCH)
+                    .containsEntry(AUTHOR_JOSHUA_BLOCH, Arrays.asList(effectiveJava, javaConcurrency));
 
             assertThat(booksByAuthor)
-                    .containsKey("Steve McConnel")
-                    .containsValues(singletonList(codeComplete));
+                    .containsKey(AUTHOR_STEVE_MCCONNEL)
+                    .containsEntry(AUTHOR_STEVE_MCCONNEL, singletonList(codeComplete));
         }
     }
 }
